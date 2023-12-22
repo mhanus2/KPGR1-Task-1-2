@@ -144,13 +144,13 @@ public class Controller2D implements Controller {
         });
 
         panel.addKeyListener(new
-
                                      KeyAdapter() {
                                          @Override
                                          public void keyPressed(KeyEvent e) {
                                              // na klávesu C vymazat plátno
                                              if (e.getKeyCode() == KeyEvent.VK_C) {
-                                                 //TODO
+                                                 panel.clear();
+                                                 polygon = new Polygon();
                                              }
                                          }
                                      });

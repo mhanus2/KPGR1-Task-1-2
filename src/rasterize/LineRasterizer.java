@@ -30,7 +30,7 @@ public abstract class LineRasterizer {
         drawLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
     }
 
-    public void rasterize(model.Point pointA, Point pointB) {
+    public void rasterize(Point pointA, Point pointB) {
         int x1 = pointA.getX();
         int y1 = pointA.getY();
         int x2 = pointB.getX();

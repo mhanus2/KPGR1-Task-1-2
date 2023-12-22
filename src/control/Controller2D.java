@@ -5,7 +5,10 @@ import fill.ScanLine;
 import fill.SeedFill;
 import fill.SeedFillBorder;
 import model.*;
-import rasterize.*;
+import rasterize.DottedLineRasterizer;
+import rasterize.FilledLineRasterizer;
+import rasterize.PolygonRasterizer;
+import rasterize.Raster;
 import view.Panel;
 
 import javax.swing.*;

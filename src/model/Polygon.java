@@ -21,6 +21,7 @@ public class Polygon {
     public ArrayList<Point> getPoints() {
         return points;
     }
+
     public ArrayList<Line> getLines() {
         ArrayList<Line> lineList = new ArrayList<>();
 

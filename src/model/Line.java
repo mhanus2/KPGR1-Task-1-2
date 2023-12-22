@@ -45,7 +45,7 @@ public class Line {
     }
 
     public void changeDirection() {
-        if (this.y2 < this.y1 ) {
+        if (this.y2 < this.y1) {
             int tmp = this.x1;
             this.x1 = this.x2;
             this.x2 = tmp;
@@ -66,6 +66,6 @@ public class Line {
     }
 
     public int getIntersection(int y) {
-        return (int) (k*y + q);
+        return (int) (k * y + q);
     }
 }

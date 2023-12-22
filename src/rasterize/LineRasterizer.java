@@ -9,7 +9,7 @@ public abstract class LineRasterizer {
     Raster raster;
     Color color;
 
-    public LineRasterizer(Raster raster){
+    public LineRasterizer(Raster raster) {
         this.raster = raster;
     }
 

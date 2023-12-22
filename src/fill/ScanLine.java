@@ -37,9 +37,9 @@ public class ScanLine implements Filler {
 
             int i = 0;
 
-            while (i<intersections.size() -1) {
+            while (i < intersections.size() - 1) {
                 int x1 = intersections.get(i);
-                int x2 = intersections.get(i+1);
+                int x2 = intersections.get(i + 1);
 
                 for (int x = x1; x <= x2; x++) {
                     raster.setPixel(x, y, this.color);
@@ -53,7 +53,7 @@ public class ScanLine implements Filler {
     private void getPLines() {
         ArrayList<Line> lines = this.polygon.getLines();
 
-        for (Line line: lines) {
+        for (Line line : lines) {
             if (line.getY1() != line.getY2()) {
                 Line pLine = new Line(line.getX1(), line.getY1(), line.getX2(), line.getY2());
 

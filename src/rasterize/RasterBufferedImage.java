@@ -28,7 +28,7 @@ public class RasterBufferedImage implements Raster {
         graphics.drawImage(raster.img, 0, 0, null);
     }
 
-    public Graphics getGraphics(){
+    public Graphics getGraphics() {
         return img.getGraphics();
     }
 

@@ -27,25 +27,22 @@ public class FilledLineRasterizer extends LineRasterizer {
         int sx = x1 < x2 ? 1 : -1;
         int sy = y1 < y2 ? 1 : -1;
 
-        int err = dx-dy;
+        int err = dx - dy;
         int e2;
 
-        while (true)
-        {
-            raster.setPixel(x1,y1,this.color.getRGB());
+        while (true) {
+            raster.setPixel(x1, y1, this.color.getRGB());
 
             if (x1 == x2 && y1 == y2)
                 break;
 
             e2 = 2 * err;
-            if (e2 > -dy)
-            {
+            if (e2 > -dy) {
                 err = err - dy;
                 x1 = x1 + sx;
             }
 
-            if (e2 < dx)
-            {
+            if (e2 < dx) {
                 err = err + dx;
                 y1 = y1 + sy;
             }

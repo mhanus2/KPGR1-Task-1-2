@@ -1,7 +1,6 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Rectangle extends Polygon {
     public Rectangle() {
@@ -33,10 +32,6 @@ public class Rectangle extends Polygon {
     }
 
     public Point getCenter() {
-        if (points.isEmpty()) {
-            throw new IllegalStateException("Rectangle must have at least 1 point to calculate center.");
-        }
-
         int sumX = 0;
         int sumY = 0;
 
@@ -52,10 +47,6 @@ public class Rectangle extends Polygon {
     }
 
     public int getWidth() {
-        if (points.size() < 2) {
-            throw new IllegalStateException("Rectangle must have at least 2 points to calculate width.");
-        }
-
         Point firstPoint = points.get(0);
         Point secondPoint = points.get(2);
 
@@ -63,10 +54,6 @@ public class Rectangle extends Polygon {
     }
 
     public int getHeight() {
-        if (points.size() < 2) {
-            throw new IllegalStateException("Rectangle must have at least 2 points to calculate height.");
-        }
-
         Point firstPoint = points.get(0);
         Point secondPoint = points.get(2);
 

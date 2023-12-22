@@ -1,5 +1,8 @@
 package control;
 
+import model.Line;
+import model.Point;
+import model.Polygon;
 import rasterize.*;
 import view.Panel;
 
@@ -9,9 +12,15 @@ import java.awt.event.*;
 public class Controller2D implements Controller {
 
     private final Panel panel;
+    private FilledLineRasterizer filledRasterizer;
 
-    private int x,y;
-    private LineRasterizerGraphics rasterizer;
+    private PolygonRasterizer polygonRasterizer;
+    private Point startPoint;
+    private Point endPoint;
+    private Polygon polygon;
+
+
+    private int x, y;
 
     public Controller2D(Panel panel) {
         this.panel = panel;
@@ -20,8 +29,10 @@ public class Controller2D implements Controller {
     }
 
     public void initObjects(Raster raster) {
-        rasterizer = new LineRasterizerGraphics(raster);
-     }
+        filledRasterizer = new FilledLineRasterizer(raster);
+        polygonRasterizer = new PolygonRasterizer(filledRasterizer);
+        polygon = new Polygon();
+    }
 
     @Override
     public void initListeners(Panel panel) {
@@ -29,19 +40,14 @@ public class Controller2D implements Controller {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.isControlDown()) return;
+                startPoint = new Point(e.getX(), e.getY());
+                endPoint = startPoint;
 
-                if (e.isShiftDown()) {
-                    //TODO
-                } else if (SwingUtilities.isLeftMouseButton(e)) {
-                    rasterizer.drawLine(x,y,e.getX(),e.getY());
-                    x = e.getX();
-                    y = e.getY();
-                } else if (SwingUtilities.isMiddleMouseButton(e)) {
-                    //TODO
-                } else if (SwingUtilities.isRightMouseButton(e)) {
-                    //TODO
+                if (polygon.getPoints().isEmpty()) {
+                    polygon.addPoint(startPoint);
                 }
+
+                if (e.isControlDown()) return;
             }
 
             @Override
@@ -54,49 +60,73 @@ public class Controller2D implements Controller {
                     }
                 }
             }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                panel.clear();
+                if (e.isControlDown()) {
+
+                } else if (SwingUtilities.isLeftMouseButton(e)) {
+                    polygon.addPoint(endPoint);
+                }
+                polygonRasterizer.rasterize(polygon);
+            }
         });
 
         panel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
+                panel.clear();
+                endPoint = new Point(e.getX(), e.getY());
+
                 if (e.isControlDown()) return;
 
                 if (e.isShiftDown()) {
                     //TODO
                 } else if (SwingUtilities.isLeftMouseButton(e)) {
-                    //TODO
-                } else if (SwingUtilities.isRightMouseButton(e)) {
-                    //TODO
-                } else if (SwingUtilities.isMiddleMouseButton(e)) {
-                    //TODO
-                }
-                update();
-            }
-        });
+                    if (polygon.getPoints().isEmpty()) {
+                        Line newLine = new Line(startPoint, endPoint);
+                        filledRasterizer.rasterize(newLine);
+                    } else {
+                        polygonRasterizer.rasterize(polygon);
 
-        panel.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // na klávesu C vymazat plátno
-                if (e.getKeyCode() == KeyEvent.VK_C) {
-                    //TODO
+                        Line lastCurrentLine = new Line(polygon.getPoints().getLast(), endPoint);
+                        Line firstCurrentline = new Line(polygon.getPoints().getFirst(), endPoint);
+
+                        filledRasterizer.rasterize(lastCurrentLine);
+                        filledRasterizer.rasterize(firstCurrentline);
+
+                    }
+                    update();
                 }
             }
         });
 
-        panel.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                panel.resize();
-                initObjects(panel.getRaster());
-            }
-        });
+        panel.addKeyListener(new
+
+                                     KeyAdapter() {
+                                         @Override
+                                         public void keyPressed(KeyEvent e) {
+                                             // na klávesu C vymazat plátno
+                                             if (e.getKeyCode() == KeyEvent.VK_C) {
+                                                 //TODO
+                                             }
+                                         }
+                                     });
+
+        panel.addComponentListener(new
+
+                                           ComponentAdapter() {
+                                               @Override
+                                               public void componentResized(ComponentEvent e) {
+                                                   panel.resize();
+                                                   initObjects(panel.getRaster());
+                                               }
+                                           });
     }
 
     private void update() {
-//        panel.clear();
-        //TODO
-
+        panel.repaint();
     }
 
     private void hardClear() {

@@ -1,4 +1,4 @@
-package Utility;
+package utility;
 
 import model.Point;
 import model.Polygon;

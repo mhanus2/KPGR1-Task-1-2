@@ -1,6 +1,6 @@
 package control;
 
-import Utility.Clip;
+import utility.Clip;
 import fill.ScanLine;
 import fill.SeedFill;
 import fill.SeedFillBorder;

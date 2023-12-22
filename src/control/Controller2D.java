@@ -182,10 +182,6 @@ public class Controller2D implements Controller {
                         panel.clear();
                         polygon = clip.clipPolygon(polygon, convexPolygon);
                         convexPolygon = new Polygon();
-                        polygonRasterizer.rasterize(polygon);
-                        panel.repaint();
-                        break;
-                    case KeyEvent.VK_S:
                         scanLine.fill(polygon);
                         polygonRasterizer.rasterize(polygon);
                         panel.repaint();

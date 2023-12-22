@@ -1,8 +1,10 @@
 package control;
 
-import model.Line;
-import model.Point;
-import model.Polygon;
+import Utility.Clip;
+import fill.ScanLine;
+import fill.SeedFill;
+import fill.SeedFillBorder;
+import model.*;
 import rasterize.*;
 import view.Panel;
 
@@ -14,12 +16,17 @@ public class Controller2D implements Controller {
     private final Panel panel;
     private DottedLineRasterizer dottedRasterizer;
     private PolygonRasterizer polygonRasterizer;
+    private SeedFill seedFill;
+    private SeedFillBorder seedFillBorder;
+    private ScanLine scanLine;
+    private Clip clip;
     private Point startPoint;
     private Point endPoint;
     private Polygon polygon;
+    private Polygon convexPolygon;
+    private Rectangle rectangle;
+    private Ellipse ellipse;
 
-
-    private int x, y;
 
     public Controller2D(Panel panel) {
         this.panel = panel;
@@ -31,7 +38,13 @@ public class Controller2D implements Controller {
         FilledLineRasterizer filledRasterizer = new FilledLineRasterizer(raster);
         dottedRasterizer = new DottedLineRasterizer(raster);
         polygonRasterizer = new PolygonRasterizer(filledRasterizer);
+        seedFill = new SeedFill(raster);
+        seedFillBorder = new SeedFillBorder(raster);
+        scanLine = new ScanLine(raster);
+        clip = new Clip();
         polygon = new Polygon();
+        convexPolygon = new Polygon();
+        rectangle = new Rectangle();
     }
 
     @Override
@@ -52,11 +65,20 @@ public class Controller2D implements Controller {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.isControlDown()) {
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        //TODO
-                    } else if (SwingUtilities.isRightMouseButton(e)) {
-                        //TODO
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                    seedFillBorder.fill(endPoint);
+                } else if (SwingUtilities.isRightMouseButton(e)) {
+                    seedFill.fill(endPoint);
+                } else if (e.isShiftDown()) {
+                    if (rectangle.getPoints().size() >= 2) {
+                        polygonRasterizer.rasterize(rectangle);
+                    } else {
+                        rectangle.addPoint(startPoint);
+                        if (rectangle.getPoints().size() >= 2) {
+                            polygonRasterizer.rasterize(rectangle);
+                            ellipse = new Ellipse(rectangle);
+                            polygonRasterizer.rasterize(ellipse);
+                        }
                     }
                 }
             }
@@ -65,11 +87,12 @@ public class Controller2D implements Controller {
             public void mouseReleased(MouseEvent e) {
                 panel.clear();
                 if (e.isControlDown()) {
-
+                    convexPolygon.addPoint(endPoint);
                 } else if (SwingUtilities.isLeftMouseButton(e)) {
                     polygon.addPoint(endPoint);
                 }
                 polygonRasterizer.rasterize(polygon);
+                polygonRasterizer.rasterize(convexPolygon);
             }
         });
 
@@ -136,42 +159,48 @@ public class Controller2D implements Controller {
 
                         dottedRasterizer.rasterize(lastCurrentLine);
                         dottedRasterizer.rasterize(firstCurrentline);
-
                     }
-                    update();
+                }
+                update();
+            }
+        });
+
+        panel.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_C:
+                        panel.clear();
+                        polygon = new Polygon();
+                        convexPolygon = new Polygon();
+                        rectangle = new Rectangle();
+                        break;
+                    case KeyEvent.VK_X:
+                        panel.clear();
+                        polygon = clip.clipPolygon(polygon, convexPolygon);
+                        convexPolygon = new Polygon();
+                        polygonRasterizer.rasterize(polygon);
+                        panel.repaint();
+                        break;
+                    case KeyEvent.VK_S:
+                        scanLine.fill(polygon);
+                        polygonRasterizer.rasterize(polygon);
+                        panel.repaint();
+                        break;
                 }
             }
         });
 
-        panel.addKeyListener(new
-                                     KeyAdapter() {
-                                         @Override
-                                         public void keyPressed(KeyEvent e) {
-                                             // na klávesu C vymazat plátno
-                                             if (e.getKeyCode() == KeyEvent.VK_C) {
-                                                 panel.clear();
-                                                 polygon = new Polygon();
-                                             }
-                                         }
-                                     });
-
-        panel.addComponentListener(new
-
-                                           ComponentAdapter() {
-                                               @Override
-                                               public void componentResized(ComponentEvent e) {
-                                                   panel.resize();
-                                                   initObjects(panel.getRaster());
-                                               }
-                                           });
+        panel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                panel.resize();
+                initObjects(panel.getRaster());
+            }
+        });
     }
 
     private void update() {
         panel.repaint();
     }
-
-    private void hardClear() {
-        panel.clear();
-    }
-
 }

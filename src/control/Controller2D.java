@@ -12,8 +12,7 @@ import java.awt.event.*;
 public class Controller2D implements Controller {
 
     private final Panel panel;
-    private FilledLineRasterizer filledRasterizer;
-
+    private DottedLineRasterizer dottedRasterizer;
     private PolygonRasterizer polygonRasterizer;
     private Point startPoint;
     private Point endPoint;
@@ -29,7 +28,8 @@ public class Controller2D implements Controller {
     }
 
     public void initObjects(Raster raster) {
-        filledRasterizer = new FilledLineRasterizer(raster);
+        FilledLineRasterizer filledRasterizer = new FilledLineRasterizer(raster);
+        dottedRasterizer = new DottedLineRasterizer(raster);
         polygonRasterizer = new PolygonRasterizer(filledRasterizer);
         polygon = new Polygon();
     }
@@ -82,19 +82,60 @@ public class Controller2D implements Controller {
                 if (e.isControlDown()) return;
 
                 if (e.isShiftDown()) {
-                    //TODO
+                    Point lastPoint;
+                    if (polygon.getPoints().isEmpty()) {
+                        lastPoint = startPoint;
+                    } else {
+                        lastPoint = polygon.getPoints().getLast();
+                    }
+
+                    int dx = Math.abs(endPoint.getX() - lastPoint.getX());
+                    int dy = Math.abs(endPoint.getY() - lastPoint.getY());
+
+                    if (dx > dy) {
+                        if (dx / 2 < dy) {
+                            // Úhlopříčná úsečka
+                            endPoint.setX(lastPoint.getX() + (endPoint.getX() > lastPoint.getX() ? dy : -dy));
+                            endPoint.setY(lastPoint.getY() + (endPoint.getY() > lastPoint.getY() ? dy : -dy));
+                        } else {
+                            // Vodorovná úsečka
+                            endPoint.setY(lastPoint.getY());
+                        }
+                    } else if (dy > dx) {
+                        if (dy / 2 < dx) {
+                            // Úhlopříčná úsečka
+                            endPoint.setX(lastPoint.getX() + (endPoint.getX() > lastPoint.getX() ? dx : -dx));
+                            endPoint.setY(lastPoint.getY() + (endPoint.getY() > lastPoint.getY() ? dx : -dx));
+                        } else {
+                            // Vodorovná úsečka
+                            endPoint.setX(lastPoint.getX());
+                        }
+                    } else {
+                        // Úhlopříčná úsečka
+                        endPoint.setX(lastPoint.getX() + (endPoint.getX() > lastPoint.getX() ? dx : -dx));
+                        endPoint.setY(lastPoint.getY() + (endPoint.getY() > lastPoint.getY() ? dy : -dy));
+                    }
+
+                    if (!polygon.getPoints().isEmpty()) {
+                        polygonRasterizer.rasterize(polygon);
+                        Line firstToCurrentline = new Line(polygon.getPoints().getFirst(), endPoint);
+                        dottedRasterizer.rasterize(firstToCurrentline);
+                    }
+                    dottedRasterizer.rasterize(new Line(lastPoint, endPoint));
+
+
                 } else if (SwingUtilities.isLeftMouseButton(e)) {
                     if (polygon.getPoints().isEmpty()) {
                         Line newLine = new Line(startPoint, endPoint);
-                        filledRasterizer.rasterize(newLine);
+                        dottedRasterizer.rasterize(newLine);
                     } else {
                         polygonRasterizer.rasterize(polygon);
 
                         Line lastCurrentLine = new Line(polygon.getPoints().getLast(), endPoint);
                         Line firstCurrentline = new Line(polygon.getPoints().getFirst(), endPoint);
 
-                        filledRasterizer.rasterize(lastCurrentLine);
-                        filledRasterizer.rasterize(firstCurrentline);
+                        dottedRasterizer.rasterize(lastCurrentLine);
+                        dottedRasterizer.rasterize(firstCurrentline);
 
                     }
                     update();
